@@ -16,3 +16,7 @@ CREATE DATABASE ddbb
 # Now, we create the tables
 
 
+# Important
+Para passwords de root :
+https://ikasten.io/2017/01/08/whats-the-default-password-of-root-user-in-mariadb/
+# In processs

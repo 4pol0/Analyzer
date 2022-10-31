@@ -4,6 +4,8 @@ import datetime
 import subprocess
 import os
 import database_ops as db
+import speedtest as sp
+
 
 def get_and_save_devices():
 	# Start on home directory
@@ -19,19 +21,24 @@ def get_and_save_devices():
 	archivo = open("../Logs/logs_devices/last.log","r")
 	
 	# Call procesar_datos in order to obtain Ip, Mac, Name
-	listaIp, listaMac, listaName  = procesar_datos_ip(archivo)
+	listaIp, listaMac, listaName  = process_data(archivo)
 	
 	# connect to ddbb
-	#connection = db.connect_database()
+	connection = db.devices_database(listaIp, listaMac, listaName)
 	
-	
-	
-	# guardar_datos_dispositivos(ip,mac,nombre)
+	# We rename the last log with todays date
 	src = "../Logs/logs_devices/last.log"
 	dst = "../Logs/logs_devices/%s.log" % fecha_log
 	os.rename(src,dst)
 	
-	
+def get_and_save_speeds():
+    speed = sp.Speedtest()
+    
+    # We modify the round the results in order to see it better
+    downspeed = round((round(speed.download()) / 1048576), 2)
+    upspeed = round((round(speed.upload()) / 1048576), 2)
+
+    db.speed_database(upspeed, downspeed)
 
 #-----------------------------------------------------------------------------------
 def get_date():
@@ -40,14 +47,14 @@ def get_date():
 
 
 # To obtain data from logs
-def procesar_datos_ip(archivo):
+def process_data(archivo):
     listIp = []
     listMac = []
     listName = []
     lineas = archivo.readlines() 
     for i in lineas:
      if ("IP Addres"in i):
-        listIp.append(i[12:-1])
+        listIp.append(i[12:26])
      if ("Mac Address"in i):
         listMac.append(i[14:-1])
      if ("Device"in i):
@@ -59,7 +66,7 @@ def procesar_datos_ip(archivo):
 
 def main():
     get_and_save_devices()
-    #procesar_datos()
+    get_and_save_speeds()
 
 if __name__ == "__main__":
     main()
